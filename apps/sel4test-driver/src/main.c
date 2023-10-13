@@ -652,9 +652,14 @@ int main(void)
     printf("Switching to a safer, bigger stack... ");
     fflush(stdout);
     void *res;
-
+    uint64_t start =  seL4_GetClock();
     /* Run sel4test-test related tests */
     error = sel4utils_run_on_stack(&env.vspace, main_continued, NULL, &res);
+    uint64_t end =  seL4_GetClock();
+    printf("Test end =====================\n");
+    printf("start clock: %llu, end clock: %llu, cost: %llu\n", start, end, end - start);
+
+
     test_assert_fatal(error == 0);
     test_assert_fatal(res == 0);
 

@@ -172,6 +172,12 @@ void init_simple(env_t env, test_init_data_t *init_data)
     arch_init_simple(env, &env->simple);
 }
 
+bool need_test(char *name) {
+    // 137106 128839
+    // 97169 99851
+    return strcmp(name, "VSPACE0006") == 0;
+}
+
 int main(int argc, char **argv)
 {
     sel4muslcsys_register_stdio_write_fn(write_buf);
@@ -227,8 +233,12 @@ int main(int argc, char **argv)
     sel4test_reset();
     test_result_t result = SUCCESS;
     if (test) {
+        uint64_t start =  seL4_GetClock();
         printf("Running test %s (%s)\n", test->name, test->description);
         result = test->function((uintptr_t)&env);
+        uint64_t end =  seL4_GetClock();
+        printf("test_name: %s, Test cost: %llu\n", test->name, end - start);
+        
     } else {
         result = FAILURE;
         ZF_LOGF("Cannot find test %s\n", init_data->name);
