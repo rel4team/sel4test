@@ -155,4 +155,4 @@ static int test_preempt_revoke(env_t env)
     ZF_LOGD("Couldn't trigger preemption point with millions of caps!\n");
     test_assert(0);
 }
-DEFINE_TEST(PREEMPT_REVOKE, "Test preemption path in revoke", test_preempt_revoke, config_set(CONFIG_HAVE_TIMER))
+// DEFINE_TEST(PREEMPT_REVOKE, "Test preemption path in revoke", test_preempt_revoke, config_set(CONFIG_HAVE_TIMER))

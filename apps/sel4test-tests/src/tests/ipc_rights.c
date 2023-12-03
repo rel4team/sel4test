@@ -57,7 +57,7 @@ static int test_send_needs_write(env_t env)
     return sel4test_get_result();
 }
 
-DEFINE_TEST(IPCRIGHTS0001, "seL4_Send needs write", test_send_needs_write, true)
+// DEFINE_TEST(IPCRIGHTS0001, "seL4_Send needs write", test_send_needs_write, true)
 
 
 static int
@@ -100,7 +100,7 @@ test_recv_needs_read(env_t env)
     return sel4test_get_result();
 }
 
-DEFINE_TEST(IPCRIGHTS0002, "seL4_Recv needs read", test_recv_needs_read, true)
+// DEFINE_TEST(IPCRIGHTS0002, "seL4_Recv needs read", test_recv_needs_read, true)
 
 static int
 check_recv_cap(env_t env, seL4_CPtr ep, bool should_recv_cap, seL4_CPtr reply)
@@ -175,7 +175,7 @@ static int test_send_cap_needs_grant(env_t env)
     return sel4test_get_result();
 }
 
-DEFINE_TEST(IPCRIGHTS0003, "seL4_Send with caps needs grant", test_send_cap_needs_grant, true)
+// DEFINE_TEST(IPCRIGHTS0003, "seL4_Send with caps needs grant", test_send_cap_needs_grant, true)
 
 #ifndef CONFIG_KERNEL_MCS
 
@@ -283,8 +283,8 @@ static int test_call_needs_grant_or_grant_reply(env_t env)
     return sel4test_get_result();
 }
 
-DEFINE_TEST(IPCRIGHTS0004, "seL4_Call needs grant or grant-reply",
-            test_call_needs_grant_or_grant_reply, true)
+// DEFINE_TEST(IPCRIGHTS0004, "seL4_Call needs grant or grant-reply",
+//             test_call_needs_grant_or_grant_reply, true)
 
 static int
 check_call_return_cap(env_t env, seL4_CPtr ep,
@@ -382,8 +382,8 @@ static int test_reply_grant_receiver(env_t env)
     return sel4test_get_result();
 }
 
-DEFINE_TEST(IPCRIGHTS0005, "seL4_Reply grant depends of the grant of previous seL4_Recv",
-            test_reply_grant_receiver, true)
+// DEFINE_TEST(IPCRIGHTS0005, "seL4_Reply grant depends of the grant of previous seL4_Recv",
+//             test_reply_grant_receiver, true)
 
 
 

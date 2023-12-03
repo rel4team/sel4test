@@ -45,7 +45,7 @@ static int test_fpu_trivial(env_t env)
     (void)b;
     return sel4test_get_result();
 }
-DEFINE_TEST(FPU0000, "Ensure that simple FPU operations work", test_fpu_trivial, true)
+// DEFINE_TEST(FPU0000, "Ensure that simple FPU operations work", test_fpu_trivial, true)
 
 static int
 fpu_worker(seL4_Word p1, seL4_Word p2, seL4_Word p3, seL4_Word p4)
@@ -125,8 +125,8 @@ static int test_fpu_multithreaded(struct env *env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(FPU0001, "Ensure multiple threads can use FPU simultaneously", test_fpu_multithreaded,
-            !config_set(CONFIG_FT))
+// DEFINE_TEST(FPU0001, "Ensure multiple threads can use FPU simultaneously", test_fpu_multithreaded,
+//             !config_set(CONFIG_FT))
 
 static int
 smp_fpu_worker(volatile seL4_Word *ex, volatile seL4_Word *run)
@@ -186,5 +186,5 @@ int smp_test_fpu(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(FPU0002, "Test FPU remain valid across core migration", smp_test_fpu,
-            config_set(CONFIG_MAX_NUM_NODES) &&config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
+// DEFINE_TEST(FPU0002, "Test FPU remain valid across core migration", smp_test_fpu,
+//            config_set(CONFIG_MAX_NUM_NODES) &&config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)

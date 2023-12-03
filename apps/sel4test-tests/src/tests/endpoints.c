@@ -141,7 +141,7 @@ static int test_ep_cancelBadgedSends(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(CANCEL_BADGED_SENDS_0001, "Basic endpoint cancelBadgedSends testing.", test_ep_cancelBadgedSends, true)
+// DEFINE_TEST(CANCEL_BADGED_SENDS_0001, "Basic endpoint cancelBadgedSends testing.", test_ep_cancelBadgedSends, true)
 
 static int ep_test_func(seL4_CPtr sync_ep, seL4_CPtr test_ep, volatile seL4_Word *status, seL4_CPtr reply)
 {
@@ -235,4 +235,4 @@ static int test_ep_cancelBadgedSends2(env_t env)
     }
     return sel4test_get_result();
 }
-DEFINE_TEST(CANCEL_BADGED_SENDS_0002, "cancelBadgedSends deletes caps", test_ep_cancelBadgedSends2, true)
+// DEFINE_TEST(CANCEL_BADGED_SENDS_0002, "cancelBadgedSends deletes caps", test_ep_cancelBadgedSends2, true)

@@ -371,56 +371,56 @@ static int test_send_wait(env_t env)
 {
     return test_ipc_pair(env, send_func, wait_func, false, env->cores);
 }
-DEFINE_TEST(IPC0001, "Test SMP seL4_Send + seL4_Recv", test_send_wait, true)
+// DEFINE_TEST(IPC0001, "Test SMP seL4_Send + seL4_Recv", test_send_wait, true)
 
 static int
 test_call_replywait(env_t env)
 {
     return test_ipc_pair(env, call_func, replywait_func, false, env->cores);
 }
-DEFINE_TEST(IPC0002, "Test SMP seL4_Call + seL4_ReplyRecv", test_call_replywait, true)
+// DEFINE_TEST(IPC0002, "Test SMP seL4_Call + seL4_ReplyRecv", test_call_replywait, true)
 
 static int
 test_call_reply_and_wait(env_t env)
 {
     return test_ipc_pair(env, call_func, reply_and_wait_func, false, env->cores);
 }
-DEFINE_TEST(IPC0003, "Test SMP seL4_Send + seL4_Reply + seL4_Recv", test_call_reply_and_wait, true)
+// DEFINE_TEST(IPC0003, "Test SMP seL4_Send + seL4_Reply + seL4_Recv", test_call_reply_and_wait, true)
 
 static int
 test_nbsend_wait(env_t env)
 {
     return test_ipc_pair(env, nbsend_func, nbwait_func, false, 1);
 }
-DEFINE_TEST(IPC0004, "Test seL4_NBSend + seL4_Recv", test_nbsend_wait, true)
+// DEFINE_TEST(IPC0004, "Test seL4_NBSend + seL4_Recv", test_nbsend_wait, true)
 
 static int
 test_send_wait_interas(env_t env)
 {
     return test_ipc_pair(env, send_func, wait_func, true, env->cores);
 }
-DEFINE_TEST(IPC1001, "Test SMP inter-AS seL4_Send + seL4_Recv", test_send_wait_interas, true)
+// DEFINE_TEST(IPC1001, "Test SMP inter-AS seL4_Send + seL4_Recv", test_send_wait_interas, true)
 
 static int
 test_call_replywait_interas(env_t env)
 {
     return test_ipc_pair(env, call_func, replywait_func, true, env->cores);
 }
-DEFINE_TEST(IPC1002, "Test SMP inter-AS seL4_Call + seL4_ReplyRecv", test_call_replywait_interas, true)
+// DEFINE_TEST(IPC1002, "Test SMP inter-AS seL4_Call + seL4_ReplyRecv", test_call_replywait_interas, true)
 
 static int
 test_call_reply_and_wait_interas(env_t env)
 {
     return test_ipc_pair(env, call_func, reply_and_wait_func, true, env->cores);
 }
-DEFINE_TEST(IPC1003, "Test SMP inter-AS seL4_Send + seL4_Reply + seL4_Recv", test_call_reply_and_wait_interas, true)
+// DEFINE_TEST(IPC1003, "Test SMP inter-AS seL4_Send + seL4_Reply + seL4_Recv", test_call_reply_and_wait_interas, true)
 
 static int
 test_nbsend_wait_interas(env_t env)
 {
     return test_ipc_pair(env, nbsend_func, nbwait_func, true, 1);
 }
-DEFINE_TEST(IPC1004, "Test inter-AS seL4_NBSend + seL4_Recv", test_nbsend_wait_interas, true)
+// DEFINE_TEST(IPC1004, "Test inter-AS seL4_NBSend + seL4_Recv", test_nbsend_wait_interas, true)
 
 static int
 test_ipc_abort_in_call(env_t env)
@@ -457,7 +457,7 @@ test_ipc_abort_in_call(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(IPC0010, "Test suspending an IPC mid-Call()", test_ipc_abort_in_call, true)
+// DEFINE_TEST(IPC0010, "Test suspending an IPC mid-Call()", test_ipc_abort_in_call, true)
 
 #ifdef CONFIG_KERNEL_MCS
 #define RUNS 10

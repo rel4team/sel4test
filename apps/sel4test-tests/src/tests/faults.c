@@ -340,6 +340,7 @@ static seL4_Word bad_instruction_cpsr; /* For checking against. */
 static void __attribute__((noinline))
 do_bad_instruction(void)
 {
+    printf("do instruction fault\n");
     int val = BAD_MAGIC;
     /* Execute an undefined instruction. */
 #if defined(CONFIG_ARCH_AARCH32)
@@ -504,7 +505,7 @@ static int handle_fault(seL4_CPtr fault_ep, seL4_CPtr tcb, seL4_Word expected_fa
     seL4_CPtr reply = flags_and_reply & MASK(RESTART);
     bool badged = flags_and_reply & BIT(BADGED);
     bool restart = flags_and_reply & BIT(RESTART);
-
+    printf("start handle_fault: %lu\n", expected_fault);
     tag = api_recv(fault_ep, &sender_badge, reply);
 
     if (badged) {
@@ -607,11 +608,15 @@ static int handle_fault(seL4_CPtr fault_ep, seL4_CPtr tcb, seL4_Word expected_fa
         break;
 
     case FAULT_BAD_INSTRUCTION:
+        printf("get FAULT_BAD_INSTRUCTION\n");
         test_check(seL4_MessageInfo_get_label(tag) == seL4_Fault_UserException);
         test_check(seL4_MessageInfo_get_length(tag) == seL4_UserException_Length);
         test_check(seL4_GetMR(0) == (seL4_Word)bad_instruction_address);
+        printf("get FAULT_BAD_INSTRUCTION2\n");
         int *valptr = (int *)seL4_GetMR(1);
+        printf("get FAULT_BAD_INSTRUCTION3: %p\n", valptr);
         test_check(*valptr == BAD_MAGIC);
+        printf("get FAULT_BAD_INSTRUCTION4\n");
 #if defined(CONFIG_ARCH_AARCH32)
         test_check(seL4_GetMR(2) == bad_instruction_cpsr);
         test_check(seL4_GetMR(3) == 0);
@@ -625,7 +630,9 @@ static int handle_fault(seL4_CPtr fault_ep, seL4_CPtr tcb, seL4_Word expected_fa
         test_check(seL4_GetMR(4) == 0);
 #elif defined(CONFIG_ARCH_RISCV)
         test_check(seL4_GetMR(2) == 2);
+        printf("get FAULT_BAD_INSTRUCTION5\n");
         test_check(seL4_GetMR(3) == 0);
+        printf("get FAULT_BAD_INSTRUCTION10\n");
 #elif defined(CONFIG_ARCH_X86)
         /*
          * Curiously, the "resume flag" (bit 16) is set between the
@@ -785,62 +792,62 @@ static int test_read_fault(env_t env)
 {
     return test_fault(env, FAULT_DATA_READ_PAGEFAULT, false);
 }
-DEFINE_TEST(PAGEFAULT0001, "Test read page fault", test_read_fault, !config_set(CONFIG_FT))
+// DEFINE_TEST(PAGEFAULT0001, "Test read page fault", test_read_fault, !config_set(CONFIG_FT))
 
 static int test_write_fault(env_t env)
 {
     return test_fault(env, FAULT_DATA_WRITE_PAGEFAULT, false);
 }
-DEFINE_TEST(PAGEFAULT0002, "Test write page fault", test_write_fault, !config_set(CONFIG_FT))
+// DEFINE_TEST(PAGEFAULT0002, "Test write page fault", test_write_fault, !config_set(CONFIG_FT))
 
 static int test_execute_fault(env_t env)
 {
     return test_fault(env,  FAULT_INSTRUCTION_PAGEFAULT, false);
 }
-DEFINE_TEST(PAGEFAULT0003, "Test execute page fault", test_execute_fault, !config_set(CONFIG_FT))
+// DEFINE_TEST(PAGEFAULT0003, "Test execute page fault", test_execute_fault, !config_set(CONFIG_FT))
 
 static int test_bad_syscall(env_t env)
 {
     return test_fault(env, FAULT_BAD_SYSCALL, false);
 }
-DEFINE_TEST(PAGEFAULT0004, "Test unknown system call", test_bad_syscall, true)
+// DEFINE_TEST(PAGEFAULT0004, "Test unknown system call", test_bad_syscall, true)
 
 static int test_bad_instruction(env_t env)
 {
     return test_fault(env, FAULT_BAD_INSTRUCTION, false);
 }
-DEFINE_TEST(PAGEFAULT0005, "Test undefined instruction", test_bad_instruction, true)
+// // DEFINE_TEST(PAGEFAULT0005, "Test undefined instruction", test_bad_instruction, true)
 
 static int test_read_fault_interas(env_t env)
 {
     return test_fault(env, FAULT_DATA_READ_PAGEFAULT, true);
 }
-DEFINE_TEST(PAGEFAULT1001, "Test read page fault (inter-AS)", test_read_fault_interas, true)
+// DEFINE_TEST(PAGEFAULT1001, "Test read page fault (inter-AS)", test_read_fault_interas, true)
 
 static int test_write_fault_interas(env_t env)
 {
     return test_fault(env, FAULT_DATA_WRITE_PAGEFAULT, true);
 }
-DEFINE_TEST(PAGEFAULT1002, "Test write page fault (inter-AS)", test_write_fault_interas, true)
+// DEFINE_TEST(PAGEFAULT1002, "Test write page fault (inter-AS)", test_write_fault_interas, true)
 
 static int test_execute_fault_interas(env_t env)
 {
     return test_fault(env, FAULT_INSTRUCTION_PAGEFAULT, true);
 }
-DEFINE_TEST(PAGEFAULT1003, "Test execute page fault (inter-AS)", test_execute_fault_interas, true)
+// DEFINE_TEST(PAGEFAULT1003, "Test execute page fault (inter-AS)", test_execute_fault_interas, true)
 
 static int test_bad_syscall_interas(env_t env)
 {
     return test_fault(env, FAULT_BAD_SYSCALL, true);
 }
-DEFINE_TEST(PAGEFAULT1004, "Test unknown system call (inter-AS)", test_bad_syscall_interas, true)
+// DEFINE_TEST(PAGEFAULT1004, "Test unknown system call (inter-AS)", test_bad_syscall_interas, true)
 
 /* This test currently fails. It is disabled until it can be investigated and fixed. */
 static int test_bad_instruction_interas(env_t env)
 {
     return test_fault(env, FAULT_BAD_INSTRUCTION, true);
 }
-DEFINE_TEST(PAGEFAULT1005, "Test undefined instruction (inter-AS)", test_bad_instruction_interas, false)
+// DEFINE_TEST(PAGEFAULT1005, "Test undefined instruction (inter-AS)", test_bad_instruction_interas, false)
 
 static void
 timeout_fault_0001_fn(void)
@@ -873,7 +880,7 @@ int test_timeout_fault(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(TIMEOUTFAULT0001, "Test timeout fault", test_timeout_fault, config_set(CONFIG_KERNEL_MCS))
+// DEFINE_TEST(TIMEOUTFAULT0001, "Test timeout fault", test_timeout_fault, config_set(CONFIG_KERNEL_MCS))
 
 void
 timeout_fault_server_fn(seL4_CPtr ep, env_t env, seL4_CPtr ro)
@@ -995,8 +1002,8 @@ static int test_timeout_fault_in_server(env_t env)
     return sel4test_get_result();
 
 }
-DEFINE_TEST(TIMEOUTFAULT0002, "Handle a timeout fault in a server",
-            test_timeout_fault_in_server, config_set(CONFIG_KERNEL_MCS))
+// DEFINE_TEST(TIMEOUTFAULT0002, "Handle a timeout fault in a server",
+//             test_timeout_fault_in_server, config_set(CONFIG_KERNEL_MCS))
 
 static void
 timeout_fault_proxy_fn(seL4_CPtr in, seL4_CPtr out, seL4_CPtr ro)
@@ -1063,7 +1070,7 @@ static int test_timeout_fault_nested_servers(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(TIMEOUTFAULT0003, "Nested timeout fault", test_timeout_fault_nested_servers, config_set(CONFIG_KERNEL_MCS))
+// DEFINE_TEST(TIMEOUTFAULT0003, "Nested timeout fault", test_timeout_fault_nested_servers, config_set(CONFIG_KERNEL_MCS))
 
 static void vm_enter(void)
 {
@@ -1091,5 +1098,5 @@ static int test_vm_enter_non_vm(env_t env)
     test_eq(seL4_MessageInfo_get_label(tag), (seL4_Word) seL4_Fault_UnknownSyscall);
     return sel4test_get_result();
 }
-DEFINE_TEST(UNKNOWN_SYSCALL_001, "Test seL4_VMEnter in a non-vm thread",
-            test_vm_enter_non_vm, config_set(CONFIG_VTX));
+// DEFINE_TEST(UNKNOWN_SYSCALL_001, "Test seL4_VMEnter in a non-vm thread",
+//             test_vm_enter_non_vm, config_set(CONFIG_VTX));

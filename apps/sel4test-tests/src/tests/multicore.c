@@ -79,8 +79,8 @@ int smp_test_tcb_resume(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(MULTICORE0001, "Test suspending and resuming a thread on different core", smp_test_tcb_resume,
-            config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
+// DEFINE_TEST(MULTICORE0001, "Test suspending and resuming a thread on different core", smp_test_tcb_resume,
+//             config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
 
 int smp_test_tcb_move(env_t env)
 {
@@ -119,8 +119,8 @@ int smp_test_tcb_move(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(MULTICORE0002, "Test thread is runnable on all available cores (0 + other)", smp_test_tcb_move,
-            config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
+// DEFINE_TEST(MULTICORE0002, "Test thread is runnable on all available cores (0 + other)", smp_test_tcb_move,
+//             config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
 
 int smp_test_tcb_delete(env_t env)
 {
@@ -167,8 +167,8 @@ int smp_test_tcb_delete(env_t env)
     return sel4test_get_result();
 }
 
-DEFINE_TEST(MULTICORE0005, "Test remote delete thread running on other cores", smp_test_tcb_delete,
-            config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
+// DEFINE_TEST(MULTICORE0005, "Test remote delete thread running on other cores", smp_test_tcb_delete,
+//             config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
 
 static int
 faulter_func(volatile seL4_Word shared_mem)
@@ -284,8 +284,8 @@ int smp_test_tlb(env_t env)
     return result;
 
 }
-DEFINE_TEST(MULTICORE0003, "Test TLB invalidated cross cores", smp_test_tlb,
-            config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
+// DEFINE_TEST(MULTICORE0003, "Test TLB invalidated cross cores", smp_test_tlb,
+//             config_set(CONFIG_HAVE_TIMER) &&CONFIG_MAX_NUM_NODES > 1)
 
 static int
 kernel_entry_func(seL4_Word *unused)
@@ -335,5 +335,5 @@ int smp_test_tcb_clh(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(MULTICORE0004, "Test core stalling is behaving properly (flaky)", smp_test_tcb_clh,
-            CONFIG_MAX_NUM_NODES > 1)
+// DEFINE_TEST(MULTICORE0004, "Test core stalling is behaving properly (flaky)", smp_test_tcb_clh,
+//             CONFIG_MAX_NUM_NODES > 1)

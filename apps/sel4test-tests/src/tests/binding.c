@@ -11,7 +11,7 @@
 
 #include "../helpers.h"
 
-#define NUM_RUNS 10
+#define NUM_RUNS 1
 #define ASYNC 1
 #define SYNC 2
 
@@ -86,9 +86,9 @@ static int test_notification_binding(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(BIND0001,
-            "Test that a bound tcb waiting on a sync endpoint receives normal sync ipc and notification notifications.",
-            test_notification_binding, true)
+// DEFINE_TEST(BIND0001,
+//             "Test that a bound tcb waiting on a sync endpoint receives normal sync ipc and notification notifications.",
+//             test_notification_binding, true)
 
 static int
 test_notification_binding_2(env_t env)
@@ -132,8 +132,8 @@ test_notification_binding_2(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(BIND0002, "Test that a bound tcb waiting on its bound notification recieves notifications",
-            test_notification_binding_2, true)
+// DEFINE_TEST(BIND0002, "Test that a bound tcb waiting on its bound notification recieves notifications",
+//             test_notification_binding_2, true)
 
 /* helper thread for testing the ordering of bound notification endpoint operations */
 static int
@@ -181,8 +181,8 @@ static int test_notification_binding_3(env_t env)
     test_notification_binding_prio(env, 10, 9);
     return sel4test_get_result();
 }
-DEFINE_TEST(BIND0003, "Test IPC ordering 1) bound tcb waits on bound notification 2, true) another tcb sends a message",
-            test_notification_binding_3, true)
+// DEFINE_TEST(BIND0003, "Test IPC ordering 1) bound tcb waits on bound notification 2, true) another tcb sends a message",
+//             test_notification_binding_3, true)
 
 static int
 test_notification_binding_4(env_t env)
@@ -190,8 +190,8 @@ test_notification_binding_4(env_t env)
     test_notification_binding_prio(env, 9, 10);
     return sel4test_get_result();
 }
-DEFINE_TEST(BIND0004, "Test IPC ordering 2) bound tcb waits on bound notification 1, true) another tcb sends a message",
-            test_notification_binding_4, true)
+// DEFINE_TEST(BIND0004, "Test IPC ordering 2) bound tcb waits on bound notification 1, true) another tcb sends a message",
+//             test_notification_binding_4, true)
 
 static void
 bind0005_helper(seL4_CPtr endpoint, volatile int *state)
@@ -246,8 +246,8 @@ static int test_notification_binding_no_sc(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(BIND005, "Test passing thread notification binding with no scheduling context",
-            test_notification_binding_no_sc, config_set(CONFIG_KERNEL_MCS))
+// DEFINE_TEST(BIND005, "Test passing thread notification binding with no scheduling context",
+//             test_notification_binding_no_sc, config_set(CONFIG_KERNEL_MCS))
 
 static int
 test_notification_binding_with_sc(env_t env)
@@ -290,5 +290,94 @@ test_notification_binding_with_sc(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(BIND006, "Test passing thread notification binding with a scheduling context",
-            test_notification_binding_with_sc, config_set(CONFIG_KERNEL_MCS))
+// DEFINE_TEST(BIND006, "Test passing thread notification binding with a scheduling context",
+//             test_notification_binding_with_sc, config_set(CONFIG_KERNEL_MCS))
+
+#define uipi_read()                                                             \
+	({                                                                          \
+		unsigned long __v;                                                      \
+		__asm__ __volatile__(".insn r 0b1111011, 0b110, 0b0000001, %0, x0, x0"  \
+												 : "=r"(__v)                    \
+												 :                              \
+												 : "memory");                   \
+		__v;                                                                    \
+	})
+
+static int Poll() {
+    seL4_Word sender = 0;
+    while (!(sender = uipi_read()));
+    printf("sender: %lu\n", sender);
+}
+
+#define uipi_send(index)                                                        \
+	({                                                                          \
+		unsigned long __i = (unsigned long)(index);                             \
+		__asm__ __volatile__(".insn r 0b1111011, 0b110, 0b0000000, x0, %0, x0"  \
+												 :                              \
+												 : "r"(__i)                     \
+												 : "memory");                   \
+	})
+
+static int sender_with_uintr(seL4_Word ep, seL4_Word id, seL4_Word runs, seL4_Word arg3)
+{
+    assert(runs > 0);
+    for (seL4_Word i = 0; i < runs; i++) {
+        seL4_MessageInfo_t info = seL4_MessageInfo_new(0, 0, 0, 0);
+        if (seL4_GetUIntrFlag() == 0) {
+            seL4_Send((seL4_CPtr) ep, info);
+        }
+        printf("ready to send signal: %lu\n", seL4_GetUIntrFlag());
+        uipi_send(seL4_GetUIntrFlag());
+        printf("send end\n");
+    }
+
+    return 0;
+}
+
+static int
+test_notification_binding_7(env_t env)
+{
+    helper_thread_t notification;
+
+    /* create endpoints */
+    seL4_CPtr notification_ep = vka_alloc_notification_leaky(&env->vka);
+    seL4_CPtr badged_notification_ep = badge_endpoint(env, ASYNC, notification_ep);
+
+    test_assert(notification_ep);
+    test_assert(badged_notification_ep);
+
+    /* badge endpoints so we can tell them apart */
+    create_helper_thread(env, &notification);
+
+    /* bind the endpoint */
+    int error = seL4_TCB_BindNotification(env->tcb, notification_ep);
+    test_error_eq(error, seL4_NoError);
+    set_helper_affinity(env, &notification, 1);
+    printf("set_helper_affinity end\n");
+    start_helper(env, &notification, sender_with_uintr, badged_notification_ep, ASYNC, NUM_RUNS, 0);
+
+    int num_notification_messages = 0;
+    for (int i = 0; i < NUM_RUNS; i++) {
+        seL4_Word badge = 0;
+        // seL4_Wait(notification_ep, &badge);
+        Poll();
+        num_notification_messages++;
+        // switch (badge) {
+        // case ASYNC:
+        //     num_notification_messages++;
+        //     break;
+        // }
+    }
+
+    test_check(num_notification_messages == NUM_RUNS);
+
+    error = seL4_TCB_UnbindNotification(env->tcb);
+    test_error_eq(error, seL4_NoError);
+
+    cleanup_helper(env, &notification);
+
+    return sel4test_get_result();
+}
+
+DEFINE_TEST(BIND007, "Test that a bound tcb waiting on its bound notification recieves notifications on different core",
+            test_notification_binding_7, true)

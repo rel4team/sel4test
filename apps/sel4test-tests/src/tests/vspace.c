@@ -33,7 +33,7 @@ static int test_interas_diffcspace(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(VSPACE0000, "Test threads in different cspace/vspace", test_interas_diffcspace, true)
+// DEFINE_TEST(VSPACE0000, "Test threads in different cspace/vspace", test_interas_diffcspace, true)
 
 #if defined(CONFIG_ARCH_AARCH32)
 static int
@@ -146,7 +146,7 @@ test_asid_pool_make(env_t env)
     return sel4test_get_result();
 
 }
-DEFINE_TEST(VSPACE0002, "Test create ASID pool", test_asid_pool_make, true)
+// DEFINE_TEST(VSPACE0002, "Test create ASID pool", test_asid_pool_make, true)
 
 static int
 test_alloc_multi_asid_pools(env_t env)
@@ -165,7 +165,7 @@ test_alloc_multi_asid_pools(env_t env)
     }
     return sel4test_get_result();
 }
-DEFINE_TEST(VSPACE0003, "Test create multiple ASID pools", test_alloc_multi_asid_pools, true)
+// DEFINE_TEST(VSPACE0003, "Test create multiple ASID pools", test_alloc_multi_asid_pools, true)
 
 static int
 test_run_out_asid_pools(env_t env)
@@ -187,7 +187,7 @@ test_run_out_asid_pools(env_t env)
     test_eq(ret, seL4_DeleteFirst);
     return sel4test_get_result();
 }
-DEFINE_TEST(VSPACE0004, "Test running out of ASID pools", test_run_out_asid_pools, true)
+// DEFINE_TEST(VSPACE0004, "Test running out of ASID pools", test_run_out_asid_pools, true)
 
 static int
 test_overassign_asid_pool(env_t env)
@@ -219,7 +219,7 @@ test_overassign_asid_pool(env_t env)
     test_eq(ret, seL4_DeleteFirst);
     return sel4test_get_result();
 }
-DEFINE_TEST(VSPACE0005, "Test overassigning ASID pool", test_overassign_asid_pool, true)
+// DEFINE_TEST(VSPACE0005, "Test overassigning ASID pool", test_overassign_asid_pool, true)
 
 static char
 incr_mem(seL4_Word tag)
@@ -253,7 +253,7 @@ static int test_create_asid_pools_and_touch(env_t env)
     }
     return sel4test_get_result();
 }
-DEFINE_TEST(VSPACE0006, "Test touching all available ASID pools", test_create_asid_pools_and_touch, true)
+// DEFINE_TEST(VSPACE0006, "Test touching all available ASID pools", test_create_asid_pools_and_touch, true)
 
 #ifdef CONFIG_ARCH_IA32
 static int

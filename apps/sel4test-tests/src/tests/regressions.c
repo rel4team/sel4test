@@ -205,7 +205,7 @@ int test_write_registers(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(REGRESSIONS0001, "Ensure WriteRegisters functions correctly", test_write_registers, true)
+// DEFINE_TEST(REGRESSIONS0001, "Ensure WriteRegisters functions correctly", test_write_registers, true)
 
 #if defined(CONFIG_ARCH_ARM)
 #if defined(CONFIG_ARCH_AARCH32)

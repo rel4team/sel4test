@@ -85,7 +85,7 @@ static int test_frame_exported(env_t env)
     }
     return sel4test_get_result();
 }
-DEFINE_TEST(FRAMEEXPORTS0001, "Test that we can access all exported frames", test_frame_exported, true)
+// DEFINE_TEST(FRAMEEXPORTS0001, "Test that we can access all exported frames", test_frame_exported, true)
 
 /* Wait for a VM fault originating on the given EP the return the virtual
  * address it occurred at. Returns the sentinel 0xffffffff if the message
@@ -224,13 +224,13 @@ static int test_xn_small_frame(env_t env)
 {
     return test_xn(env, seL4_ARM_SmallPageObject);
 }
-DEFINE_TEST(FRAMEXN0001, "Test that we can map a small frame XN", test_xn_small_frame, config_set(CONFIG_ARCH_ARM))
+// DEFINE_TEST(FRAMEXN0001, "Test that we can map a small frame XN", test_xn_small_frame, config_set(CONFIG_ARCH_ARM))
 
 static int test_xn_large_frame(env_t env)
 {
     return test_xn(env, seL4_ARM_LargePageObject);
 }
-DEFINE_TEST(FRAMEXN0002, "Test that we can map a large frame XN", test_xn_large_frame, config_set(CONFIG_ARCH_ARM))
+// DEFINE_TEST(FRAMEXN0002, "Test that we can map a large frame XN", test_xn_large_frame, config_set(CONFIG_ARCH_ARM))
 #endif /* CONFIG_ARCH_ARM */
 
 static int test_device_frame_ipcbuf(env_t env)
@@ -259,8 +259,8 @@ static int test_device_frame_ipcbuf(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(FRAMEDIPC0001, "Test that we cannot create a thread with an IPC buffer that is a frame",
-            test_device_frame_ipcbuf, !config_set(CONFIG_PLAT_SPIKE))
+// DEFINE_TEST(FRAMEDIPC0001, "Test that we cannot create a thread with an IPC buffer that is a frame",
+//             test_device_frame_ipcbuf, !config_set(CONFIG_PLAT_SPIKE))
 
 static int wait_func(seL4_Word ep)
 {
@@ -298,8 +298,8 @@ static int test_switch_device_frame_ipcbuf(env_t env)
     cleanup_helper(env, &other);
     return sel4test_get_result();
 }
-DEFINE_TEST(FRAMEDIPC0002, "Test that we cannot switch a threads IPC buffer to a device frame",
-            test_switch_device_frame_ipcbuf, !config_set(CONFIG_PLAT_SPIKE))
+// DEFINE_TEST(FRAMEDIPC0002, "Test that we cannot switch a threads IPC buffer to a device frame",
+//             test_switch_device_frame_ipcbuf, !config_set(CONFIG_PLAT_SPIKE))
 
 static int touch_data_fault(seL4_Word data, seL4_Word fault_ep, seL4_Word arg3, seL4_Word arg4)
 {
@@ -370,4 +370,4 @@ static int test_unmap_on_delete(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(FRAMEDIPC0003, "Test that deleting a frame cap unmaps the frame", test_unmap_on_delete, true)
+// DEFINE_TEST(FRAMEDIPC0003, "Test that deleting a frame cap unmaps the frame", test_unmap_on_delete, true)

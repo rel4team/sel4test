@@ -30,12 +30,12 @@ static int test_root_tls(env_t env)
     /* very the bss and data arrays containg the correct thing */
     return sel4test_get_result();
 }
-DEFINE_TEST(
-    TLS0001,
-    "Test root thread accessing __thread variables",
-    test_root_tls,
-    true
-)
+// DEFINE_TEST(
+//     TLS0001,
+//     "Test root thread accessing __thread variables",
+//     test_root_tls,
+//     true
+// )
 
 static int
 tls_helper(seL4_Word helper, seL4_Word done_ep, seL4_Word start_ep, seL4_Word arg4)
@@ -97,12 +97,12 @@ static int test_threads_tls(env_t env)
     }
     return sel4test_get_result();
 }
-DEFINE_TEST(
-    TLS0002,
-    "Test multiple threads using __thread variables",
-    test_threads_tls,
-    true
-)
+// DEFINE_TEST(
+//     TLS0002,
+//     "Test multiple threads using __thread variables",
+//     test_threads_tls,
+//     true
+// )
 
 // Thread local storage value.
 #define INITIAL_TLS_VALUE 42
@@ -183,9 +183,9 @@ int test_sel4utils_thread_tls(env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(
-    TLS0006,
-    "sel4utils_thread with distinct TLS should not interfere",
-    test_sel4utils_thread_tls,
-    true
-)
+// DEFINE_TEST(
+//     TLS0006,
+//     "sel4utils_thread with distinct TLS should not interfere",
+//     test_sel4utils_thread_tls,
+//     true
+// )

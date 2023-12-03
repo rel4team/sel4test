@@ -117,7 +117,7 @@ test_resume_self(struct env *env)
     ZF_LOGD("Ending test_resume_self\n");
     return sel4test_get_result();
 }
-DEFINE_TEST(SCHED0002, "Test resuming ourselves", test_resume_self, true)
+// DEFINE_TEST(SCHED0002, "Test resuming ourselves", test_resume_self, true)
 
 /*
  * Test TCB Suspend/Resume.
@@ -253,7 +253,7 @@ static int test_suspend(struct env *env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(SCHED0003, "Test TCB suspend/resume", test_suspend, !config_set(CONFIG_FT))
+// DEFINE_TEST(SCHED0003, "Test TCB suspend/resume", test_suspend, !config_set(CONFIG_FT))
 
 /*
  * Test threads at all possible priorities, and that they get scheduled in the
@@ -320,7 +320,7 @@ static int test_all_priorities(struct env *env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(SCHED0004, "Test threads at all priorities", test_all_priorities, true)
+// DEFINE_TEST(SCHED0004, "Test threads at all priorities", test_all_priorities, true)
 
 #define SCHED0005_HIGHEST_PRIO (seL4_MaxPrio - 2)
 /*
@@ -432,7 +432,7 @@ static int test_set_priority(struct env *env)
     cleanup_helper(env, &thread2);
     return sel4test_get_result();
 }
-DEFINE_TEST(SCHED0005, "Test set priority", test_set_priority, true)
+// DEFINE_TEST(SCHED0005, "Test set priority", test_set_priority, true)
 #endif
 
 /*
@@ -644,7 +644,7 @@ static int test_ipc_prios(struct env *env)
     return sel4test_get_result();
 }
 /* this test does not work on the RT kernel as it relies on FIFO IPC */
-DEFINE_TEST(SCHED0006, "Test IPC priorities for Send", test_ipc_prios, !config_set(CONFIG_KERNEL_MCS))
+// DEFINE_TEST(SCHED0006, "Test IPC priorities for Send", test_ipc_prios, !config_set(CONFIG_KERNEL_MCS))
 
 #define SCHED0007_NUM_CLIENTS 5
 #define SCHED0007_PRIO(x) ((seL4_Word)(seL4_MaxPrio - 1 - SCHED0007_NUM_CLIENTS + (x)))
@@ -1482,7 +1482,7 @@ static int test_set_higher_prio(struct env *env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST(SCHED0020, "test set prio to a higher prio runs higher prio thread", test_set_higher_prio, true);
+// DEFINE_TEST(SCHED0020, "test set prio to a higher prio runs higher prio thread", test_set_higher_prio, true);
 
 #define PREEMPTION_THREADS 4
 

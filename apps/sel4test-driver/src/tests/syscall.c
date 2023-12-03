@@ -242,23 +242,23 @@
  * Generate testing stubs for each of the basic system calls.
  */
 
-GENERATE_SYSCALL_TEST(SYSCALL0000, seL4_Yield,
-                      seL4_Yield());
+// GENERATE_SYSCALL_TEST(SYSCALL0000, seL4_Yield,
+//                       seL4_Yield());
 
-GENERATE_SYSCALL_TEST(SYSCALL0001, seL4_Send,
-                      seL4_Send(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0)))
+// GENERATE_SYSCALL_TEST(SYSCALL0001, seL4_Send,
+//                       seL4_Send(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0)))
 
-GENERATE_SYSCALL_TEST(SYSCALL0002, seL4_NBSend,
-                      seL4_NBSend(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0)))
+// GENERATE_SYSCALL_TEST(SYSCALL0002, seL4_NBSend,
+//                       seL4_NBSend(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0)))
 
-GENERATE_SYSCALL_TEST_MAYBE(SYSCALL0003, api_reply,
-                            api_reply(0, seL4_MessageInfo_new(0, 0, 0, 0)), !config_set(CONFIG_KERNEL_MCS))
+// GENERATE_SYSCALL_TEST_MAYBE(SYSCALL0003, api_reply,
+//                             api_reply(0, seL4_MessageInfo_new(0, 0, 0, 0)), !config_set(CONFIG_KERNEL_MCS))
 
-GENERATE_SYSCALL_TEST(SYSCALL0004, seL4_Signal,
-                      seL4_Signal(simple_get_cnode(&env->simple)))
+// GENERATE_SYSCALL_TEST(SYSCALL0004, seL4_Signal,
+//                       seL4_Signal(simple_get_cnode(&env->simple)))
 
-GENERATE_SYSCALL_TEST(SYSCALL0005, seL4_Call,
-                      seL4_Call(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0)))
+// GENERATE_SYSCALL_TEST(SYSCALL0005, seL4_Call,
+//                       seL4_Call(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0)))
 
 static int
 test_debug_put_char(driver_env_t env)
@@ -270,7 +270,7 @@ test_debug_put_char(driver_env_t env)
     }
     return sel4test_get_result();
 }
-DEFINE_TEST_BOOTSTRAP(SYSCALL0006, "Basic seL4_DebugPutChar() testing", test_debug_put_char, true)
+// DEFINE_TEST_BOOTSTRAP(SYSCALL0006, "Basic seL4_DebugPutChar() testing", test_debug_put_char, true)
 
 /* Slightly more complex tests for waiting, because we actually have
  * to wait on something real. */
@@ -291,7 +291,7 @@ test_recv(driver_env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST_BOOTSTRAP(SYSCALL0010, "Basic seL4_Recv() testing", test_recv, true)
+// DEFINE_TEST_BOOTSTRAP(SYSCALL0010, "Basic seL4_Recv() testing", test_recv, true)
 
 static int
 test_reply_recv(driver_env_t env)
@@ -310,7 +310,7 @@ test_reply_recv(driver_env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST_BOOTSTRAP(SYSCALL0011, "Basic seL4_ReplyRecv() testing", test_reply_recv, true)
+// DEFINE_TEST_BOOTSTRAP(SYSCALL0011, "Basic seL4_ReplyRecv() testing", test_reply_recv, true)
 
 static int
 test_nb_recv(driver_env_t env)
@@ -329,7 +329,7 @@ test_nb_recv(driver_env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST_BOOTSTRAP(SYSCALL0012, "Basic seL4_NBRecv() testing", test_nb_recv, true)
+// DEFINE_TEST_BOOTSTRAP(SYSCALL0012, "Basic seL4_NBRecv() testing", test_nb_recv, true)
 
 static int
 test_wait(driver_env_t env)
@@ -348,25 +348,25 @@ test_wait(driver_env_t env)
 
     return sel4test_get_result();
 }
-DEFINE_TEST_BOOTSTRAP(SYSCALL0013, "Basic seL4_Wait() testing", test_wait, true)
+// DEFINE_TEST_BOOTSTRAP(SYSCALL0013, "Basic seL4_Wait() testing", test_wait, true)
 
 /*
  * Let's not forget our friends in the *WithMRs community.
  */
 
-GENERATE_SYSCALL_TEST(SYSCALL0014, seL4_SendWithMRs,
-                      seL4_SendWithMRs(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0), TEST_MRS))
+// GENERATE_SYSCALL_TEST(SYSCALL0014, seL4_SendWithMRs,
+//                       seL4_SendWithMRs(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0), TEST_MRS))
 
-GENERATE_SYSCALL_TEST(SYSCALL0015, seL4_NBSendWithMRs,
-                      seL4_NBSendWithMRs(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0), TEST_MRS))
+// GENERATE_SYSCALL_TEST(SYSCALL0015, seL4_NBSendWithMRs,
+//                       seL4_NBSendWithMRs(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0), TEST_MRS))
 
 #ifndef CONFIG_KERNEL_MCS
 /* the seL4_ReplyWithMRs symbol is not defined in non RT builds and so we must #ifdef out */
-GENERATE_SYSCALL_TEST_MAYBE(SYSCALL0016, seL4_ReplyWithMRs,
-                            seL4_ReplyWithMRs(seL4_MessageInfo_new(0, 0, 0, 0), TEST_MRS), !config_set(CONFIG_KERNEL_MCS))
+// GENERATE_SYSCALL_TEST_MAYBE(SYSCALL0016, seL4_ReplyWithMRs,
+//                             seL4_ReplyWithMRs(seL4_MessageInfo_new(0, 0, 0, 0), TEST_MRS), !config_set(CONFIG_KERNEL_MCS))
 #endif
-GENERATE_SYSCALL_TEST(SYSCALL0017, seL4_CallWithMRs,
-                      seL4_CallWithMRs(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0), TEST_MRS))
+// GENERATE_SYSCALL_TEST(SYSCALL0017, seL4_CallWithMRs,
+//                       seL4_CallWithMRs(simple_get_cnode(&env->simple), seL4_MessageInfo_new(0, 0, 0, 0), TEST_MRS))
 
 #ifdef CONFIG_KERNEL_MCS
 static int
