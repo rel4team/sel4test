@@ -128,4 +128,11 @@ if(NOT Sel4testAllowSettingsOverride)
         set(KernelIsMCS OFF CACHE BOOL "" FORCE)
     endif()
 
+    if(ASYNC)
+        set(KernelIsAsync ON CACHE BOOL "" FORCE)
+    else()
+        set(KernelIsAsync OFF CACHE BOOL "" FORCE)
+    endif()
+
+
 endif()
