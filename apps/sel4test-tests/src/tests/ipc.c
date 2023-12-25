@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <sel4/sel4.h>
 #include <vka/object.h>
-
+#include <vka/capops.h>
 #include "../helpers.h"
 
 #define MIN_LENGTH 0
@@ -1364,3 +1364,249 @@ static int test_sched_donation_cross_core(env_t env)
 DEFINE_TEST(IPC0028, "Cross core sched donation", test_sched_donation_cross_core,
             config_set(CONFIG_KERNEL_MCS) &&config_set(CONFIG_MAX_NUM_NODES) &&CONFIG_MAX_NUM_NODES > 1);
 #endif /* CONFIG_KERNEL_MCS */
+
+
+
+struct ReqItem {
+    seL4_Word syscall_id;
+    seL4_Word dest_cptr;
+    seL4_Word msg_registers[10];
+};
+
+struct ReqBuffer {
+    struct ReqItem items[2];
+};
+
+struct GetFrameRes {
+    void *addr;
+    seL4_CPtr frame_cap;
+};
+
+static struct GetFrameRes get_frame(env_t env) {
+    int err;
+    /* Get ourselves a frame. */
+    cspacepath_t frame_path;
+    seL4_CPtr frame_cap = vka_alloc_frame_leaky(&env->vka, seL4_PageBits);
+    // test_assert(frame_cap != seL4_CapNull);
+    vka_cspace_make_path(&env->vka, frame_cap, &frame_path);
+
+    /* create a copy of the frame cap */
+    cspacepath_t frame_copy;
+    err = vka_cspace_alloc_path(&env->vka, &frame_copy);
+    // test_error_eq(err, seL4_NoError);
+    vka_cnode_copy(&frame_copy, &frame_path, seL4_AllRights);
+
+    /* Map it in */
+    uintptr_t cookie = 0;
+    void *dest = vspace_map_pages(&env->vspace, &frame_copy.capPtr, &cookie, seL4_AllRights, 1, seL4_PageBits, 1);
+    struct GetFrameRes res = {
+        .addr = dest,
+        .frame_cap = frame_copy.capPtr,
+    };
+    return res;
+    // test_assert(dest != NULL);
+
+}
+
+struct AsyncThreadArgs {
+    void *req_buffer;
+    seL4_CPtr req_buffer_cap;
+    seL4_CPtr res_buffer_cap;
+    seL4_CPtr executor_cap;
+};
+
+
+static int test_ipc_pair2(env_t env, test_func_t fa, test_func_t fb, bool inter_as, seL4_Word nr_cores)
+{
+    
+    struct GetFrameRes res = get_frame(env);
+    struct ReqBuffer *sender_buffer = (struct ReqBuffer *)res.addr;
+    seL4_CPtr send_req_buffer_cap = res.frame_cap;
+    res = get_frame(env);
+    seL4_CPtr send_res_buffer_cap = res.frame_cap;
+
+    res = get_frame(env);
+    struct ReqBuffer *recv_buffer = (struct ReqBuffer *)res.addr;
+    seL4_CPtr recv_req_buffer_cap = res.frame_cap;
+    res = get_frame(env);
+    seL4_CPtr recv_res_buffer_cap = res.frame_cap;
+
+
+    vka_object_t executor_obj;
+    int error = vka_alloc_object(&env->vka, seL4_ExecutorObject, 20, &executor_obj);
+    test_error_eq(error, seL4_NoError);
+    seL4_CPtr send_executor = executor_obj.cptr;
+
+    error = vka_alloc_object(&env->vka, seL4_ExecutorObject, 20, &executor_obj);
+    test_error_eq(error, seL4_NoError);
+    seL4_CPtr wait_executor = executor_obj.cptr;
+
+    struct AsyncThreadArgs sender_args = {
+        .req_buffer = sender_buffer,
+        .req_buffer_cap = send_req_buffer_cap,
+        .res_buffer_cap = send_res_buffer_cap,
+        .executor_cap = send_executor
+    };
+
+    struct AsyncThreadArgs recv_args = {
+        .req_buffer = recv_buffer,
+        .req_buffer_cap = recv_req_buffer_cap,
+        .res_buffer_cap = recv_res_buffer_cap,
+        .executor_cap = wait_executor
+    };
+
+    helper_thread_t thread_a, thread_b;
+    vka_t *vka = &env->vka;
+
+    seL4_CPtr ep = vka_alloc_endpoint_leaky(vka);
+    seL4_Word start_number = 0xabbacafe;
+
+    seL4_CPtr a_reply = vka_alloc_reply_leaky(vka);
+    seL4_CPtr b_reply = vka_alloc_reply_leaky(vka);
+
+    /* Test sending messages of varying lengths. */
+    /* Please excuse the awful indending here. */
+    for (int core_a = 0; core_a < nr_cores; core_a++) {
+        for (int core_b = 0; core_b < nr_cores; core_b++) {
+            for (int sender_prio = 98; sender_prio <= 102; sender_prio++) {
+                for (int waiter_prio = 100; waiter_prio <= 100; waiter_prio++) {
+                    for (int sender_first = 0; sender_first <= 1; sender_first++) {
+                        ZF_LOGD("%d %s %d\n",
+                                sender_prio, sender_first ? "->" : "<-", waiter_prio);
+                        seL4_Word thread_a_arg0, thread_b_arg0;
+                        seL4_CPtr thread_a_reply, thread_b_reply;
+
+                        if (inter_as) {
+                            create_helper_process(env, &thread_a);
+
+                            cspacepath_t path;
+                            vka_cspace_make_path(&env->vka, ep, &path);
+                            thread_a_arg0 = sel4utils_copy_path_to_process(&thread_a.process, path);
+                            assert(thread_a_arg0 != -1);
+
+                            create_helper_process(env, &thread_b);
+                            thread_b_arg0 = sel4utils_copy_path_to_process(&thread_b.process, path);
+                            assert(thread_b_arg0 != -1);
+
+                            if (config_set(CONFIG_KERNEL_MCS)) {
+                                thread_a_reply = sel4utils_copy_cap_to_process(&thread_a.process, vka, a_reply);
+                                thread_b_reply = sel4utils_copy_cap_to_process(&thread_b.process, vka, b_reply);
+                            }
+                        } else {
+                            create_helper_thread(env, &thread_a);
+                            create_helper_thread(env, &thread_b);
+                            thread_a_arg0 = ep;
+                            thread_b_arg0 = ep;
+                            thread_a_reply = a_reply;
+                            thread_b_reply = b_reply;
+                        }
+
+                        set_helper_priority(env, &thread_a, sender_prio);
+                        set_helper_priority(env, &thread_b, waiter_prio);
+
+                        set_helper_affinity(env, &thread_a, core_a);
+                        set_helper_affinity(env, &thread_b, core_b);
+
+                        /* Set the flag for nbwait_func that tells it whether or not it really
+                         * should wait. */
+                        int nbwait_should_wait;
+                        nbwait_should_wait =
+                            (sender_prio < waiter_prio);
+
+                        /* Threads are enqueued at the head of the scheduling queue, so the
+                         * thread enqueued last will be run first, for a given priority. */
+                        if (sender_first) {
+                            start_helper(env, &thread_b, (helper_fn_t) fb, thread_b_arg0, start_number,
+                                         thread_b_reply, &recv_args);
+                            start_helper(env, &thread_a, (helper_fn_t) fa, thread_a_arg0, start_number,
+                                         thread_a_reply, &sender_args);
+                        } else {
+                            start_helper(env, &thread_a, (helper_fn_t) fa, thread_a_arg0, start_number,
+                                         thread_a_reply, &sender_args);
+                            start_helper(env, &thread_b, (helper_fn_t) fb, thread_b_arg0, start_number,
+                                         thread_b_reply, &recv_args);
+                        }
+
+                        test_result_t res = wait_for_helper(&thread_a);
+                        test_eq(res, SUCCESS);
+                        res = wait_for_helper(&thread_b);
+                        test_eq(res, SUCCESS);
+
+                        cleanup_helper(env, &thread_a);
+                        cleanup_helper(env, &thread_b);
+
+                        start_number += 0x71717171;
+                    }
+                }
+            }
+        }
+    }
+
+    error = cnode_delete(env, ep);
+    test_error_eq(error, seL4_NoError);
+    return sel4test_get_result();
+}
+
+static int send_func2(seL4_Word endpoint, seL4_Word seed, seL4_Word reply, seL4_Word arg)
+{
+    struct AsyncThreadArgs *args = (struct AsyncThreadArgs *)arg;
+    struct ReqBuffer *req_buffer = args->req_buffer;
+    req_buffer->items[0].syscall_id = seL4_SysSend;
+    req_buffer->items[0].dest_cptr = endpoint;
+    req_buffer->items[0].msg_registers[0] = 1;  
+    seL4_Executor_Execute(args->executor_cap, args->req_buffer_cap, args->res_buffer_cap, 1);
+    printf("send executor complete\n");
+    // FOR_EACH_LENGTH(length) {
+    //     seL4_MessageInfo_t tag = seL4_MessageInfo_new(0, 0, 0, length);
+    //     for (int i = 0; i < length; i++) {
+    //         seL4_SetMR(i, seed);
+    //         seed++;
+    //     }
+    //     seL4_Send(endpoint, tag);
+    // }
+
+    return SUCCESS;
+}
+
+static int wait_func2(seL4_Word endpoint, seL4_Word seed, seL4_Word reply, seL4_Word arg)
+{
+    struct AsyncThreadArgs *args = (struct AsyncThreadArgs *)arg;
+    struct ReqBuffer *req_buffer = args->req_buffer;
+    req_buffer->items[0].syscall_id = seL4_SysRecv;
+    req_buffer->items[0].dest_cptr = endpoint;
+    req_buffer->items[0].msg_registers[0] = 1;
+    seL4_Executor_Execute(args->executor_cap, args->req_buffer_cap, args->res_buffer_cap, 1);
+    printf("recv executor complete\n");
+    test_result_t result = SUCCESS;
+    // FOR_EACH_LENGTH(length) {
+    //     seL4_MessageInfo_t tag;
+    //     seL4_Word sender_badge = 0;
+
+    //     tag = api_recv(endpoint, &sender_badge, reply);
+    //     seL4_Word actual_len = length;
+    //     if (actual_len <= seL4_MsgMaxLength) {
+    //         if (actual_len != seL4_MessageInfo_get_length(tag)) {
+    //             result = FAILURE;
+    //         }
+    //     } else {
+    //         actual_len = seL4_MsgMaxLength;
+    //     }
+
+    //     for (int i = 0; i < actual_len; i++) {
+    //         seL4_Word mr = seL4_GetMR(i);
+    //         if (mr != seed) {
+    //             result = FAILURE;
+    //         }
+    //         seed++;
+    //     }
+    // }
+
+    return result;
+}
+
+static int test_send_wait2(env_t env)
+{
+    return test_ipc_pair2(env, send_func2, wait_func2, false, 1);
+}
+
+DEFINE_TEST(IPC2001, "Test SMP seL4_Send + seL4_Recv", test_send_wait2, true)

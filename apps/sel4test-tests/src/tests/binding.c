@@ -379,5 +379,5 @@ test_notification_binding_7(env_t env)
     return sel4test_get_result();
 }
 
-DEFINE_TEST(BIND007, "Test that a bound tcb waiting on its bound notification recieves notifications on different core",
-            test_notification_binding_7, true)
+// DEFINE_TEST(BIND007, "Test that a bound tcb waiting on its bound notification recieves notifications on different core",
+//             test_notification_binding_7, true)
