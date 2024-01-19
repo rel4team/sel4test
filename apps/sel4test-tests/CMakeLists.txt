@@ -19,6 +19,7 @@ file(
         deps
         src/*.c
         src/tests/*.c
+        src/runtime/*.c
         src/tests/*.S
         src/arch/${arch}/*.c
         src/arch/${KernelArch}/tests/*.c
