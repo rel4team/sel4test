@@ -7,24 +7,22 @@
 #include <assert.h>
 
 
+runtime RUNTIMES[MAX_RT_NUM];
 
+static bitmap_t RT_BITMAP;
 
-static  runtime RUNTIMES[MAX_RT_NUM];
+send_pair SENDER_MAP[MAX_CONNNECTIONS];
 
-ipc_buffer *SENDER_MAP[MAX_CONNNECTIONS];
-
-typedef struct recv_pair_t {
-    int rt_id;
-    int cid;
-} recv_pair;
 
 static recv_pair RECEIVER_MAP[MAX_RT_NUM];
 
 int create_runtime(vka_t *vka, seL4_CPtr tcb) {
-    // TODO: alloc recv ntfn, bound tcb
     int error;
-    int idle = 0;
-    memset(RUNTIMES + sizeof(runtime) * idle, 0, sizeof(runtime));
+    int idle = find_first_zero(RT_BITMAP);
+    printf("[create_runtime] idle: %d %d\n", idle, RT_BITMAP);
+    set_bit(&RT_BITMAP, idle);
+    memset(&RUNTIMES[idle], 0, sizeof(runtime));
+    printf("helo\n");
     error = vka_alloc_notification(vka, &RUNTIMES[idle].notification);
     if (error != 0) {
         printf("[create_runtime]fail to alloc notification: %d\n", error);
@@ -88,8 +86,9 @@ int spwan_coroutine(int runtime, void (*func)(void* args), void *args) {
     return cid;
 }
 
-int register_connection(seL4_CPtr sender_ntfn, ipc_buffer *buf) {
-    SENDER_MAP[sender_ntfn] = buf;
+int register_sender(seL4_CPtr sender_ntfn, ipc_buffer *buf, int recv_id) {
+    SENDER_MAP[sender_ntfn].buf = buf;
+    SENDER_MAP[sender_ntfn].recv_id = recv_id;
     return 0;
 }
 
@@ -99,3 +98,7 @@ int register_receiver(int rt_id, int sender_id, void (*func)(void* args), void *
     RECEIVER_MAP[sender_id].cid = cid;
     return 0;
 }
+
+seL4_CPtr get_runtime_ntfn(int rt_id) {
+    return RUNTIMES[rt_id].notification.cptr;
+} 

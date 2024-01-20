@@ -6,7 +6,7 @@
 #include "queue.h"
 
 #define MAX_COROUTINE_NUM 128
-#define MAX_RT_NUM 16
+#define MAX_RT_NUM 64
 #define MAX_CONNNECTIONS 4096
 #define FORCE_INLINE __attribute__((always_inline))
 
@@ -27,14 +27,6 @@ static inline int FORCE_INLINE find_first_one(bitmap_t bitmap) {
     return __builtin_ctzll(bitmap);
 }
 
-typedef struct runtime_t {
-    mco_coro *cos[MAX_COROUTINE_NUM];
-    mco_coro *current;
-    co_queue ready_queue;
-    vka_object_t notification;
-} runtime;
-
-
 typedef struct ipc_item_t {
     uint64_t cid;
     uint64_t msg_info;
@@ -46,6 +38,36 @@ typedef struct ipc_buffer_t {
     ipc_item  items[64];
 } ipc_buffer;
 
+typedef struct recv_pair_t {
+    int rt_id;
+    int cid;
+} recv_pair;
 
+typedef struct send_pair_t {
+    int recv_id;
+    ipc_buffer *buf;
+} send_pair;
+
+typedef struct runtime_t {
+    mco_coro *cos[MAX_COROUTINE_NUM];
+    mco_coro *current;
+    co_queue ready_queue;
+    vka_object_t notification;
+} runtime;
+
+
+
+
+int create_runtime(vka_t *vka, seL4_CPtr tcb);
+
+void runtime_run(int runtime);
+
+int spwan_coroutine(int runtime, void (*func)(void* args), void *args);
+
+int register_sender(seL4_CPtr sender_ntfn, ipc_buffer *buf, int recv_id);
+
+int register_receiver(int rt_id, int sender_id, void (*func)(void* args), void *args);
+
+seL4_CPtr get_runtime_ntfn(int rt_id);
 
 #endif
