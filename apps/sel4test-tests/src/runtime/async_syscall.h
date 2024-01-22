@@ -2,6 +2,6 @@
 #define RUNTIME_ASYNC_SYSCALL
 #include <sel4/types.h>
 
-void seL4_Async_Send(seL4_CPtr ntfn, seL4_MessageInfo_t msg_info, int cid);
+int seL4_Async_Send(seL4_CPtr send_id, seL4_MessageInfo_t msg_info, seL4_MessageInfo_t *reply);
 
 #endif

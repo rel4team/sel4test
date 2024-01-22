@@ -128,4 +128,10 @@ if(NOT Sel4testAllowSettingsOverride)
         set(KernelIsMCS OFF CACHE BOOL "" FORCE)
     endif()
 
+    if(UINTR)
+        set(KernelIsUintr ON CACHE BOOL "" FORCE)
+    else()
+        set(KernelIsUintr OFF CACHE BOOL "" FORCE)
+    endif()
+
 endif()

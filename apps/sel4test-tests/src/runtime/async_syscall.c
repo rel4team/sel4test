@@ -1,24 +1,28 @@
 #include "async_syscall.h"
 #include "scheduler.h"
+#include "uintr.h"
 
 extern send_pair SENDER_MAP[MAX_CONNNECTIONS];
 extern runtime RUNTIMES[MAX_RT_NUM];
 
-void seL4_Async_Send(seL4_CPtr ntfn, seL4_MessageInfo_t msg_info, int rt_id) {
-    mco_coro *current = RUNTIMES[rt_id].current;
-    send_pair pair = SENDER_MAP[ntfn];
-    ipc_buffer *buf = pair.buf;
+int seL4_Async_Send(seL4_CPtr send_id, seL4_MessageInfo_t msg_info, seL4_MessageInfo_t *reply) {
+    runtime *rt = (runtime *)seL4_GetRTAddr();
+    mco_coro *current = rt->current;
+    ipc_buffer *buf = rt->sender_map[send_id];
     int idle = find_first_zero(buf->bitmap);
-    printf("[seL4_Async_Send] buf: %p\n", buf);
-    buf->items[idle].cid = cid;
-    buf->items[idle].msg_info = msg_info.words[0];
+    if (idle == -1) {
+        printf("ipc buffer full\n");
+        return -1;
+    }
     set_bit(&buf->bitmap, idle);
+    printf("[seL4_Async_Send] buf: %p\n", buf);
+    buf->items[idle].cid = current->cid;
+    buf->items[idle].msg_info = msg_info.words[0];
     
     if (buf->recv_status == 0) {
-        // need to wake
+        uipi_send(send_id);
     }
     mco_yield(current);
-    seL4_MessageInfo_t reply;
-    mco_pop(current, &reply, sizeof(reply));
-    
+    mco_pop(current, reply, sizeof(seL4_MessageInfo_t));
+    return 0;
 }
