@@ -657,7 +657,8 @@ int main(void)
     error = sel4utils_run_on_stack(&env.vspace, main_continued, NULL, &res);
     uint64_t end =  seL4_GetClock();
     printf("Test end =====================\n");
-    printf("start clock: %llu, end clock: %llu, cost: %llu\n", start, end, end - start);
+    // FIXME: FIX FOR WARNING, fix type conversion in the future
+    // printf("start clock: %llu, end clock: %llu, cost: %llu\n", start, end, end - start);
 
 
     test_assert_fatal(error == 0);
