@@ -366,6 +366,8 @@ void sel4test_run_tests(struct driver_env *e)
 
         for (int i = 0; i < num_tests; i++) {
             if (tests[i]->test_type == test_types[tt]->id) {
+                // TIPS: Just test only want to test
+                // if(strcmp(tests[i]->name, "VSPACE0005") != 0) continue;;
                 sel4test_start_test(tests[i]->name, tests_done);
                 if (test_types[tt]->set_up != NULL) {
                     test_types[tt]->set_up((uintptr_t)e);
@@ -423,25 +425,29 @@ void *main_continued(void *arg UNUSED)
 
     /* allocate a piece of device untyped memory for the frame tests,
      * note that spike doesn't have any device untypes so the tests that require device untypes are turned off */
-    if (!config_set(CONFIG_PLAT_SPIKE)) {
-        bool allocated = false;
-        int untyped_count = simple_get_untyped_count(&env.simple);
-        for (int i = 0; i < untyped_count; i++) {
-            bool device = false;
-            uintptr_t ut_paddr = 0;
-            size_t ut_size_bits = 0;
-            seL4_CPtr ut_cptr = simple_get_nth_untyped(&env.simple, i, &ut_size_bits, &ut_paddr, &device);
-            if (device) {
-                error = vka_alloc_frame_at(&env.vka, seL4_PageBits, ut_paddr, &env.device_obj);
-                if (!error) {
-                    allocated = true;
-                    /* we've allocated a single device frame and that's all we need */
-                    break;
-                }
-            }
-        }
-        ZF_LOGF_IF(allocated == false, "Failed to allocate a device frame for the frame tests");
-    }
+    // TODO: Enable device untyped memory
+    // if (!config_set(CONFIG_PLAT_SPIKE)) {
+    //     bool allocated = false;
+    //     int untyped_count = simple_get_untyped_count(&env.simple);
+    //     printf("untyped count: %d\n", untyped_count);
+    //     for (int i = 0; i < untyped_count; i++) {
+    //         printf("test %d\n", i);
+    //         bool device = false;
+    //         uintptr_t ut_paddr = 0;
+    //         size_t ut_size_bits = 0;
+    //         seL4_CPtr ut_cptr = simple_get_nth_untyped(&env.simple, i, &ut_size_bits, &ut_paddr, &device);
+    //         printf("test step 1");
+    //         if (device) {
+    //             error = vka_alloc_frame_at(&env.vka, seL4_PageBits, ut_paddr, &env.device_obj);
+    //             if (!error) {
+    //                 allocated = true;
+    //                 /* we've allocated a single device frame and that's all we need */
+    //                 break;
+    //             }
+    //         }
+    //     }
+    //     ZF_LOGF_IF(allocated == false, "Failed to allocate a device frame for the frame tests");
+    // }
 
     /* allocate lots of untyped memory for tests to use */
     env.num_untypeds = populate_untypeds(untypeds);
@@ -595,6 +601,7 @@ static void sel4test_exit(int code)
 
 int main(void)
 {
+    printf("sel4test-driver main\n");
     /* Set exit handler */
     sel4runtime_set_exit(sel4test_exit);
 
