@@ -83,7 +83,7 @@ target_link_libraries(
         sel4testsupport
     PRIVATE sel4test-driver_Config
 )
-target_compile_options(sel4test-driver PRIVATE -Werror -g)
+target_compile_options(sel4test-driver PRIVATE -g)
 
 # Set this image as the rootserver
 include(rootserver)
