@@ -655,6 +655,7 @@ int main(void)
 
     /* Run sel4test-test related tests */
     error = sel4utils_run_on_stack(&env.vspace, main_continued, NULL, &res);
+	printf("Test end =====================\n");
     test_assert_fatal(error == 0);
     test_assert_fatal(res == 0);
 
