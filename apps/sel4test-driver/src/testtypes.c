@@ -274,7 +274,6 @@ test_result_t basic_run_test(struct testcase *test, uintptr_t e)
     char string_args[argc][WORD_STRING_SIZE];
     char *argv[argc];
     sel4utils_create_word_args(string_args, argv, argc, env->endpoint, env->remote_vaddr);
-
     /* spawn the process */
     error = sel4utils_spawn_process_v(&(env->test_process), &env->vka, &env->vspace,
                                       argc, argv, 1);

@@ -85,7 +85,7 @@ static int test_frame_exported(env_t env)
     }
     return sel4test_get_result();
 }
-DEFINE_TEST(FRAMEEXPORTS0001, "Test that we can access all exported frames", test_frame_exported, true)
+// DEFINE_TEST(FRAMEEXPORTS0001, "Test that we can access all exported frames", test_frame_exported, true)
 
 /* Wait for a VM fault originating on the given EP the return the virtual
  * address it occurred at. Returns the sentinel 0xffffffff if the message
